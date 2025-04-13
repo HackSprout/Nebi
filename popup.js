@@ -56,9 +56,10 @@ function updateTrackingLabels(isEnabled) {
 }
 
 // Calibration Button
-document.getElementById("calibrate").addEventListener("click", () => {
+document.getElementById("calibrate-button").addEventListener("click", () => {
   chrome.runtime.sendMessage({ action: "start_calibration" }, (response) => {
     console.log("Calibration triggered.");
+    window.close();
   });
 });
 
@@ -67,7 +68,7 @@ document.getElementById("enableVoice").addEventListener("click", () => {
   chrome.runtime.sendMessage({ action: "start_voice_commands" }, (response) => {
     console.log("Voice command listening started.");
     const voiceLabel = document.getElementById("voiceStatus");
-    if (voiceLabel) voiceLabel.textContent = "ON"; // Optional: Update Voice Status
+    if (voiceLabel) voiceLabel.textContent = "ON"; 
   });
 });
 

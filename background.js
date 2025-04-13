@@ -4,13 +4,14 @@ chrome.runtime.onInstalled.addListener(() => {
   console.log("Nebi Extension Installed.");
 });
 
+// Listen to popup and content script messages
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("Background received message:", message.action);
 
   if (message.action === "toggle_tracking") {
     trackingEnabled = message.enabled;
-    chrome.storage.local.set({ trackingEnabled }); 
-  
+    chrome.storage.local.set({ trackingEnabled });
+
     chrome.tabs.query({ url: ["http://*/*", "https://*/*"] }, (tabs) => {
       tabs.forEach((tab) => {
         chrome.tabs.sendMessage(tab.id, {
@@ -27,7 +28,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     sendResponse({ status: "success", from: "background" });
     return true;
   }
-  
 
   if (
     message.action === "start_calibration" ||
@@ -54,7 +54,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       chrome.tabs.query({ active: true, currentWindow: true }, (activeTabs) => {
         const activeTab = activeTabs[0];
         const activeIndex = tabs.findIndex(tab => tab.id === activeTab.id);
-  
+
         if (message.direction === "right" && activeIndex < tabs.length - 1) {
           chrome.tabs.update(tabs[activeIndex + 1].id, { active: true });
         } else if (message.direction === "left" && activeIndex > 0) {
@@ -64,7 +64,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
     return true;
   }
-  
+
   if (message.action === "close_tab") {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs.length > 0) {
@@ -73,10 +73,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
     return true;
   }
-  
 });
 
-// Auto-reinject after navigation
+// Auto-reinject after navigation (page reloads)
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete' && /^https?:/.test(tab.url)) {
     chrome.scripting.executeScript({
@@ -85,13 +84,29 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }, () => {
       console.log("Nebi: Re-injected scripts after navigation.");
 
-      if (trackingEnabled) {
-        chrome.tabs.sendMessage(tabId, { action: "start_tracking" }, (response) => {
-          if (chrome.runtime.lastError) {
-            console.warn("Nebi: Could not auto-restart tracking after navigation:", chrome.runtime.lastError.message);
-          }
-        });
-      }
+      // Check if trackingEnabled in storage
+      chrome.storage.local.get("trackingEnabled", (data) => {
+        if (data.trackingEnabled) {
+          chrome.tabs.sendMessage(tabId, { action: "start_tracking" }, (response) => {
+            if (chrome.runtime.lastError) {
+              console.warn("Nebi: Could not auto-start tracking after navigation:", chrome.runtime.lastError.message);
+            }
+          });
+        }
+      });
     });
   }
+});
+
+// Auto-restart tracking when switching tabs
+chrome.tabs.onActivated.addListener((activeInfo) => {
+  chrome.storage.local.get("trackingEnabled", (data) => {
+    if (data.trackingEnabled) {
+      chrome.tabs.sendMessage(activeInfo.tabId, { action: "start_tracking" }, (response) => {
+        if (chrome.runtime.lastError) {
+          console.warn("Nebi: Could not start tracking on tab switch:", chrome.runtime.lastError.message);
+        }
+      });
+    }
+  });
 });
