@@ -1,5 +1,6 @@
 console.log("Nebi Content Script Loaded!");
 
+
 if (!document.getElementById('gazeDot')) {
   const gazeDot = document.createElement('div');
   gazeDot.id = 'gazeDot';
@@ -39,7 +40,7 @@ function setupSpeechRecognition() {
     console.error('Speech recognition error:', event.error);
     try {
       recognition.stop();
-      recognition.start();  // Auto-restart if it crashes
+      recognition.start(); 
     } catch (e) {
       console.error('Failed restarting recognition:', e.message);
     }
@@ -65,20 +66,19 @@ function stopSpeechRecognition() {
 
 function startWebGazer() {
   console.log("[WebGazer] Starting tracking...");
-  webgazer.showVideo(false).showPredictionPoints(true);
   if (typeof webgazer !== 'undefined') {
-    webgazer.setRegression('ridge')   
-            .setGazeListener((data, timestamp) => {
-              if (data) {
-                const gazeDot = document.getElementById("gazeDot");
-                if (gazeDot) {
-                  gazeDot.style.left = data.x + "px";
-                  gazeDot.style.top = data.y + "px";
-                  gazeDot.style.display = 'block';
-                }
-              }
-            })
-            .begin();
+    webgazer.setRegression('ridge')
+      .setGazeListener((data, timestamp) => {
+        if (data) {
+          const gazeDot = document.getElementById("gazeDot");
+          if (gazeDot) {
+            gazeDot.style.left = data.x + "px";
+            gazeDot.style.top = data.y + "px";
+            gazeDot.style.display = 'block';
+          }
+        }
+      })
+      .begin();
   } else {
     console.error("[WebGazer] Not loaded!");
   }
@@ -110,19 +110,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     stopWebGazer();
   } else if (message.action === "start_calibration") {
     console.log("[WebGazer] Starting Calibration...");
-  
+
     if (typeof webgazer !== 'undefined') {
-      webgazer.clearData(); // Optional: clear old data
-      webgazer.showVideo(false); // Hide webcam feed
-      webgazer.showPredictionPoints(true); // Show raw dots
-  
-      showCalibrationOverlay(); // 💥 <- ADD THIS TO SHOW THE 9 RED DOTS
+      const gazeDot = document.getElementById("gazeDot");
+      // if (gazeDot) {
+      //   gazeDot.style.display = 'none'; 
+      // }
+
+      webgazer.pause();
+      webgazer.clearData();
+      webgazer.showVideo(false);
+      webgazer.showPredictionPoints(true);
+
+      showCalibrationOverlay(); 
     }
   }
-  
 });
-
-
 
 
 function handleVoiceCommand(command) {
@@ -147,19 +150,17 @@ function handleVoiceCommand(command) {
       target.dispatchEvent(event);
       console.log('Clicked at center.');
     }
-  } 
-  else if (command.includes('switch tab right')) {
-    switchTab("right");   
-  } 
-  else if (command.includes('switch tab left')) {
-    switchTab("left");     
+  } else if (command.includes('switch tab right')) {
+    switchTab("right");
+  } else if (command.includes('switch tab left')) {
+    switchTab("left");
   } else if (command.includes('close tab')) {
-    closeCurrentTab();   
+    closeCurrentTab();
   } else if (command.includes('calibration')) {
     chrome.runtime.sendMessage({ action: "start_calibration" });
   }
-  
 }
+
 
 function switchTab(direction) {
   chrome.runtime.sendMessage({ action: "switch_tab", direction: direction });
@@ -184,6 +185,8 @@ function showCalibrationOverlay() {
     return;
   }
 
+  console.log("[Calibration] Starting overlay...");
+
   const overlay = document.createElement('div');
   overlay.id = 'calibrationOverlay';
   overlay.style.position = 'fixed';
@@ -191,14 +194,17 @@ function showCalibrationOverlay() {
   overlay.style.left = '0';
   overlay.style.width = '100vw';
   overlay.style.height = '100vh';
-  overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-  overlay.style.zIndex = '999999';
+  overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';  
+  overlay.style.zIndex = '9999999';
+  overlay.style.display = 'flex';
+  overlay.style.justifyContent = 'center';
+  overlay.style.alignItems = 'center';
   document.body.appendChild(overlay);
 
   const positions = [
-    { top: '5%', left: '5%' }, { top: '5%', left: '50%' }, { top: '5%', right: '5%' },
-    { top: '50%', left: '5%' }, { top: '50%', left: '50%' }, { top: '50%', right: '5%' },
-    { bottom: '5%', left: '5%' }, { bottom: '5%', left: '50%' }, { bottom: '5%', right: '5%' }
+    { top: '10%', left: '10%' }, { top: '10%', left: '50%' }, { top: '10%', right: '10%' },
+    { top: '50%', left: '10%' }, { top: '50%', left: '50%' }, { top: '50%', right: '10%' },
+    { bottom: '10%', left: '10%' }, { bottom: '10%', left: '50%' }, { bottom: '10%', right: '10%' }
   ];
 
   let currentDotIndex = 0;
@@ -206,7 +212,7 @@ function showCalibrationOverlay() {
 
   function showNextDot() {
     if (currentDot) {
-      currentDot.remove(); // Remove old dot
+      currentDot.remove(); 
     }
 
     if (currentDotIndex >= positions.length) {
@@ -218,12 +224,12 @@ function showCalibrationOverlay() {
     const dot = document.createElement('div');
     dot.className = 'calibrationDot';
     dot.style.position = 'absolute';
-    dot.style.width = '20px';
-    dot.style.height = '20px';
+    dot.style.width = '30px';
+    dot.style.height = '30px';
     dot.style.backgroundColor = 'red';
     dot.style.borderRadius = '50%';
     dot.style.cursor = 'pointer';
-    dot.style.zIndex = '1000000';
+    dot.style.zIndex = '10000000';  
 
     for (const [key, value] of Object.entries(pos)) {
       dot.style[key] = value;
@@ -233,7 +239,7 @@ function showCalibrationOverlay() {
     dot.addEventListener('click', (e) => {
       const x = e.clientX;
       const y = e.clientY;
-      console.log(`Calibration click recorded at: (${x}, ${y})`);
+      console.log(`[Calibration] Click recorded at: (${x}, ${y})`);
       webgazer.recordScreenPosition(x, y, 'click');
       currentDotIndex++;
       showNextDot();
@@ -251,5 +257,27 @@ function finishCalibration() {
   if (overlay) {
     overlay.remove();
   }
-  console.log("%cCalibration complete!", "color: lightgreen; font-size: 16px");
+  console.log("%c[Calibration] Complete!", "color: lightgreen; font-size: 16px");
+
+  const gazeDot = document.getElementById("gazeDot");
+  if (gazeDot) {
+    gazeDot.style.display = 'block';
+  }
+
+  if (typeof webgazer !== 'undefined') {
+    webgazer.showPredictionPoints(false); 
+    webgazer.resume();                    
+  }
+
+  if (recognition) {
+    console.log("[Calibration] Restarting Speech Recognition...");
+    try {
+      recognition.stop();
+      recognition.start();
+    } catch (e) {
+      console.error('Failed restarting recognition after calibration:', e.message);
+    }
+  }
 }
+
+

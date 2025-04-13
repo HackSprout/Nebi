@@ -1,4 +1,3 @@
-// Load Tracking Status When Popup Opens
 chrome.storage.local.get("trackingEnabled", (data) => {
   const toggle = document.getElementById("eyeTrackingToggle");
   if (toggle) {
@@ -7,9 +6,7 @@ chrome.storage.local.get("trackingEnabled", (data) => {
   }
 });
 
-// Eye Tracking Toggle
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle Eye Tracking Toggle
     document.getElementById("eyeTrackingToggle").addEventListener("change", (event) => {
         const isTrackingEnabled = event.target.checked;
         
@@ -26,18 +23,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Handle About card click
     document.querySelector('.about-card').addEventListener('click', () => {
         window.location.href = 'about.html';
     });
 
-    // Handle Commands card click
     document.querySelector('.command-card').addEventListener('click', () => {
         window.location.href = 'commands.html';
     });
 });
 
-// Update Tracking Labels (Voice: ON/OFF, Gaze: ON/OFF)
 function updateTrackingLabels(isEnabled) {
   const voiceLabel = document.getElementById("voiceStatus");
   const gazeLabel = document.getElementById("gazeStatus");
@@ -55,7 +49,6 @@ function updateTrackingLabels(isEnabled) {
   }
 }
 
-// Calibration Button
 document.getElementById("calibrate-button").addEventListener("click", () => {
   chrome.runtime.sendMessage({ action: "start_calibration" }, (response) => {
     console.log("Calibration triggered.");
@@ -63,7 +56,6 @@ document.getElementById("calibrate-button").addEventListener("click", () => {
   });
 });
 
-// Voice Commands Enable Button
 document.getElementById("enableVoice").addEventListener("click", () => {
   chrome.runtime.sendMessage({ action: "start_voice_commands" }, (response) => {
     console.log("Voice command listening started.");

@@ -1,10 +1,9 @@
-let trackingEnabled = false; // Global tracking state
+let trackingEnabled = false; 
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Nebi Extension Installed.");
 });
 
-// Listen to popup and content script messages
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("Background received message:", message.action);
 
@@ -37,11 +36,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         if (message.direction === "right" && activeIndex < tabs.length - 1) {
           chrome.tabs.update(tabs[activeIndex + 1].id, { active: true }, (tab) => {
-            chrome.tabs.reload(tab.id);   // 💥 RELOAD after switching
+            chrome.tabs.reload(tab.id);  
           });
         } else if (message.direction === "left" && activeIndex > 0) {
           chrome.tabs.update(tabs[activeIndex - 1].id, { active: true }, (tab) => {
-            chrome.tabs.reload(tab.id);   // 💥 RELOAD after switching
+            chrome.tabs.reload(tab.id);   
           });
         }
       });
@@ -61,14 +60,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "reload_tab") {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs.length > 0) {
-        chrome.tabs.reload(tabs[0].id);  // 💥 Reload active tab
+        chrome.tabs.reload(tabs[0].id); 
+      }
+    });
+    return true;
+  }
+
+  if (message.action === "start_calibration") {
+    console.log("[Background] Forwarding start_calibration to content script.");
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs.length > 0) {
+        chrome.tabs.sendMessage(tabs[0].id, { action: "start_calibration" });
       }
     });
     return true;
   }
 });
 
-// Auto-reinject after navigation
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete' && /^https?:/.test(tab.url)) {
     chrome.scripting.executeScript({
