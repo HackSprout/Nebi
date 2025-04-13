@@ -3,7 +3,7 @@
   "name": "Nebi",
   "version": "1.0.0",
   "description": "Hands-free navigation using eye-tracking.",
-  "permissions": ["scripting", "activeTab", "storage"],
+  "permissions": ["scripting", "tabs", "activeTab", "storage"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js"
@@ -19,7 +19,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["webgazer.js", "contentScript.js"]
+      "js": [ "contentScript.js"]
     }
   ]
 }

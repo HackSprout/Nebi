@@ -7,23 +7,28 @@ chrome.storage.local.get("trackingEnabled", (data) => {
   }
 });
 
-// Eye Tracking Toggle
 document.addEventListener('DOMContentLoaded', function() {
     // Handle Eye Tracking Toggle
-    document.getElementById("eyeTrackingToggle").addEventListener("change", (event) => {
+    document.getElementById("eyeTrackingToggle").addEventListener("change", async (event) => {
         const isTrackingEnabled = event.target.checked;
-        
-        chrome.runtime.sendMessage({ 
-            action: "toggle_tracking", 
-            enabled: isTrackingEnabled 
-        }, (response) => {
-            if (response && response.status === "success") {
+
+        try {
+            const response = await fetch('http://127.0.0.1:6000/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: isTrackingEnabled ? 'start' : 'stop' })
+            });
+
+            if (response.ok) {
                 console.log(`Tracking ${isTrackingEnabled ? "started" : "stopped"} successfully.`);
                 updateTrackingLabels(isTrackingEnabled);
+                chrome.storage.local.set({ trackingEnabled: isTrackingEnabled });  // Save toggle status
             } else {
-                console.error("Failed to toggle tracking.");
+                console.error('Failed to communicate with backend server.');
             }
-        });
+        } catch (error) {
+            console.error('Error talking to backend:', error);
+        }
     });
 
     // Handle About card click
@@ -35,9 +40,25 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.command-card').addEventListener('click', () => {
         window.location.href = 'commands.html';
     });
+
+    // Calibration Button
+    document.getElementById("calibrate-button").addEventListener("click", () => {
+      chrome.runtime.sendMessage({ action: "start_calibration" }, (response) => {
+        console.log("Calibration triggered.");
+        window.close();
+      });
+    });
+
+    // Voice Commands Button
+    document.getElementById("enableVoice")?.addEventListener("click", () => {
+      chrome.runtime.sendMessage({ action: "start_voice_commands" }, (response) => {
+        console.log("Voice command listening started.");
+        const voiceLabel = document.getElementById("voiceStatus");
+        if (voiceLabel) voiceLabel.textContent = "ON"; 
+      });
+    });
 });
 
-// Update Tracking Labels (Voice: ON/OFF, Gaze: ON/OFF)
 function updateTrackingLabels(isEnabled) {
   const voiceLabel = document.getElementById("voiceStatus");
   const gazeLabel = document.getElementById("gazeStatus");
@@ -54,22 +75,3 @@ function updateTrackingLabels(isEnabled) {
     gazeLabel.style.color = statusColor;
   }
 }
-
-// Calibration Button
-document.getElementById("calibrate-button").addEventListener("click", () => {
-  chrome.runtime.sendMessage({ action: "start_calibration" }, (response) => {
-    console.log("Calibration triggered.");
-    window.close();
-  });
-});
-
-// Voice Commands Enable Button
-document.getElementById("enableVoice").addEventListener("click", () => {
-  chrome.runtime.sendMessage({ action: "start_voice_commands" }, (response) => {
-    console.log("Voice command listening started.");
-    const voiceLabel = document.getElementById("voiceStatus");
-    if (voiceLabel) voiceLabel.textContent = "ON"; 
-  });
-});
-
-updateTrackingLabels(false);
