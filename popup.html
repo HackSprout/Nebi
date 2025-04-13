@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <link rel="stylesheet" href="styles.css">
     <title>Nebi</title>
@@ -8,18 +8,32 @@
     <div id="stars" class="stars"></div>
     <div class="container">
         <header>
-            <h1>Nebi</h1>
-            <p class="subtitle">Eye Tracking Assistant</p>
+            <img src="icons/nebi1.2.png" alt="Logo" class="logo">
+            <div class="header-text">
+                <h1>Nebi</h1>
+                <p class="subtitle">Eye Tracking Assistant</p>
+            </div>
         </header>
 
-        <div class="grid">
+        <div class="layout">
             <div class="card">
-                <div class="icon">smth1</div>
-                <h2>Eye Tracking</h2>
-                <label class="switch">
-                    <input type="checkbox" id="eyeTrackingToggle">  <!-- FIXED -->
-                    <span class="slider"></span>
-                </label>
+                <div class="tracking-header">
+                    <div class="tracking-title">Eye Tracking</div>
+                    <label class="switch">
+                        <input type="checkbox" id="eyeTrackingToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="tracking-status">
+                    <div class="status-item">
+                        <span class="status-label">Voice:</span>
+                        <span class="status-value" id="voiceStatus" >OFF</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Gaze:</span>
+                        <span class="status-value" id="gazeStatus" >OFF</span>
+                    </div>
+                </div>
             </div>
 
             <div class="card">
@@ -37,18 +51,11 @@
             <div class="card">
                 <div class="icon">smth1</div>
                 <h2>Voice Commands</h2>
-                <button id="enableVoice">Enable</button> <!-- FIXED -->
-            </div>
-        </div>
-
-        <div class="settings-panel">
-            <h3>Tracking Settings</h3>
-            <div class="setting-item">
-                <label>Sensitivity</label>
-                <input type="range" min="1" max="100" value="50" id="sensitivitySlider"> <!-- FIXED -->
+                <button id="enableVoice">Enable</button>
             </div>
         </div>
     </div>
+
     <script src="stars.js"></script>
     <script src="popup.js"></script>
 </body>
