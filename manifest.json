@@ -22,4 +22,4 @@
         "js": ["contentScript.js"]
       }
     ]
-  }
+}
