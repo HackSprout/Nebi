@@ -98,7 +98,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("ContentScript received:", message.action);
 
   if (message.action === "switch_tab") {
+    stopSpeechRecognition();
     switchTab(message.direction);
+    setupSpeechRecognition();
+    startSpeechRecognition();
   } else if (message.action === "close_tab") {
     closeCurrentTab();
   } else if (message.action === "start_tracking") {
