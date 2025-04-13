@@ -1,10 +1,10 @@
 console.log("Nebi content script loaded!");
 
 let isTracking = false;
-
 let recognition;
 let isListening = false;
 
+// Listen for messages from background or popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("ContentScript received:", message.action);
 
@@ -17,15 +17,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+// Start Eye Tracking
 async function startTracking() {
   if (isTracking) return;
 
   console.log("%cStarting WebGazer tracking...", "color: green; font-size: 14px");
+
   await webgazer.setRegression('ridge')
     .setGazeListener((data, elapsedTime) => {
       if (data != null) {
         const smoothed = smoothGazePrediction(data);
-        updateCursor(smoothed.x, smoothed.y); 
+        updateCursor(smoothed.x, smoothed.y);
       }
     })
     .begin();
@@ -38,15 +40,19 @@ async function startTracking() {
   isTracking = true;
 }
 
+// Stop Eye Tracking
 function stopTracking() {
   if (!isTracking) return;
 
   console.log("%cStopping WebGazer tracking...", "color: red; font-size: 14px");
-  webgazer.pause(); 
+
+  webgazer.pause();
   stopSpeechRecognition();
+
   isTracking = false;
 }
 
+// Smooth out Gaze Points
 let lastPredictions = [];
 
 function smoothGazePrediction(prediction) {
@@ -61,6 +67,7 @@ function smoothGazePrediction(prediction) {
   return { x: avgX, y: avgY };
 }
 
+// Visual Cursor
 const cursor = document.createElement('div');
 cursor.style.position = 'absolute';
 cursor.style.width = '10px';
@@ -76,6 +83,7 @@ function updateCursor(x, y) {
   cursor.style.top = `${y - 5}px`;
 }
 
+// Speech Recognition Setup
 function setupSpeechRecognition() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
@@ -91,15 +99,7 @@ function setupSpeechRecognition() {
     const transcript = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
     console.log('Heard:', transcript);
 
-    if (transcript.includes('click')) {
-      simulateClickAtGaze();
-    } else if (transcript.includes('scroll down')) {
-      window.scrollBy(0, 100);
-    } else if (transcript.includes('scroll up')) {
-      window.scrollBy(0, -100);
-    } else if (transcript.includes('stop')) {
-      stopTracking();
-    }
+    handleVoiceCommand(transcript);
   };
 
   recognition.onerror = (event) => {
@@ -121,6 +121,20 @@ function stopSpeechRecognition() {
   }
 }
 
+// Handle Voice Commands
+function handleVoiceCommand(command) {
+  if (command.includes('click')) {
+    simulateClickAtGaze();
+  } else if (command.includes('scroll down')) {
+    window.scrollBy({ top: 400, behavior: 'smooth' });
+  } else if (command.includes('scroll up')) {
+    window.scrollBy({ top: -400, behavior: 'smooth' });
+  } else if (command.includes('stop')) {
+    stopTracking();
+  }
+}
+
+// Simulate Click at Current Gaze
 function simulateClickAtGaze() {
   webgazer.getCurrentPrediction().then((prediction) => {
     if (prediction) {
@@ -140,6 +154,7 @@ function simulateClickAtGaze() {
   });
 }
 
+// Show Calibration Overlay
 function showCalibrationOverlay() {
   const overlay = document.createElement('div');
   overlay.id = 'calibrationOverlay';
@@ -193,5 +208,5 @@ function finishCalibration() {
   if (overlay) {
     overlay.remove();
   }
-  console.log("%c Calibration complete!", "color: lightgreen; font-size: 16px");
+  console.log("%cCalibration complete!", "color: lightgreen; font-size: 16px");
 }

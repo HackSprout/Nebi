@@ -17,7 +17,7 @@
                 <div class="icon">smth1</div>
                 <h2>Eye Tracking</h2>
                 <label class="switch">
-                    <input type="checkbox" id="start">
+                    <input type="checkbox" id="eyeTrackingToggle">  <!-- FIXED -->
                     <span class="slider"></span>
                 </label>
             </div>
@@ -37,7 +37,7 @@
             <div class="card">
                 <div class="icon">smth1</div>
                 <h2>Voice Commands</h2>
-                <button id="voice">Enable</button>
+                <button id="enableVoice">Enable</button> <!-- FIXED -->
             </div>
         </div>
 
@@ -45,16 +45,8 @@
             <h3>Tracking Settings</h3>
             <div class="setting-item">
                 <label>Sensitivity</label>
-                <input type="range" min="1" max="100" value="50" id="sensitivity">
+                <input type="range" min="1" max="100" value="50" id="sensitivitySlider"> <!-- FIXED -->
             </div>
-            <!-- <div class="setting-item">
-                <label>Hover Delay (ms)</label>
-                <input type="number" value="500" min="100" max="2000" id="hoverDelay">
-            </div>
-            <div class="setting-item checkbox">
-                <label>Auto-scroll</label>
-                <input type="checkbox" id="autoScroll">
-            </div> -->
         </div>
     </div>
     <script src="stars.js"></script>
