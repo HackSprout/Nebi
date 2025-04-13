@@ -22,4 +22,4 @@
         "js": ["webgazer.js","contentScript.js"]
       }
     ]
-  }
+}

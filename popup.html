@@ -1,13 +1,63 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <link rel="stylesheet" href="styles.css">
     <title>Nebi</title>
-  </head>
-  <body>
-    <h1>Nebi</h1>
-    <button id="start">Start Nebi</button>
-    <button id="stop">Stop Nebi</button>
+</head>
+<body>
+    <div id="stars" class="stars"></div>
+    <div class="container">
+        <header>
+            <h1>Nebi</h1>
+            <p class="subtitle">Eye Tracking Assistant</p>
+        </header>
+
+        <div class="grid">
+            <div class="card">
+                <div class="icon">smth1</div>
+                <h2>Eye Tracking</h2>
+                <label class="switch">
+                    <input type="checkbox" id="start">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="card">
+                <div class="icon">smth1</div>
+                <h2>Calibration</h2>
+                <button id="calibrate">Start</button>
+            </div>
+
+            <div class="card">
+                <div class="icon">smth1</div>
+                <h2>Settings</h2>
+                <button id="settings">Configure</button>
+            </div>
+
+            <div class="card">
+                <div class="icon">smth1</div>
+                <h2>Voice Commands</h2>
+                <button id="voice">Enable</button>
+            </div>
+        </div>
+
+        <div class="settings-panel">
+            <h3>Tracking Settings</h3>
+            <div class="setting-item">
+                <label>Sensitivity</label>
+                <input type="range" min="1" max="100" value="50" id="sensitivity">
+            </div>
+            <!-- <div class="setting-item">
+                <label>Hover Delay (ms)</label>
+                <input type="number" value="500" min="100" max="2000" id="hoverDelay">
+            </div>
+            <div class="setting-item checkbox">
+                <label>Auto-scroll</label>
+                <input type="checkbox" id="autoScroll">
+            </div> -->
+        </div>
+    </div>
+    <script src="stars.js"></script>
     <script src="popup.js"></script>
-  </body>
+</body>
 </html>

@@ -36,4 +36,3 @@ document.getElementById("calibrate").addEventListener("click", () => {
     console.log("Calibration triggered");
   });
 });
-
