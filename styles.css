@@ -92,14 +92,14 @@ h1 {
     transition: background-color 0.2s;
 }
 
-.tracking-header {
+.tracking-header, .calibrate-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
 }
 
-.tracking-title {
+.tracking-title, .calibrate-title {
     font-size: 20px;
     font-weight: 500;
 }
@@ -127,31 +127,41 @@ h1 {
     font-weight: 500;
 }
 
+.command-header, .about-header{
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    width: 100%;
+}
+
+.command-title, .about-title {
+    font-size: 22px;
+    font-weight: 500;
+    padding-left: 30px;
+}
+
+.command-white, .about-white {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+
+
 .card:hover {
     border-color: rgba(0, 247, 255, 0.5);
     box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
 }
 
-.icon {
-    font-size: 24px;
-    margin-bottom: 4px;
-}
-
-h2 {
-    font-size: 14px;
-    font-weight: 500;
-    text-align: center;
-}
-
 button {
-    background: #527da9;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 13px;
+    background: #5f5fff;
+    color: black;
+    border: 2px solid black;
+    padding: 8px 24px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
 }
 
 button:hover {
