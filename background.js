@@ -1,10 +1,9 @@
-let trackingEnabled = false; // Global tracking state
+let trackingEnabled = false; 
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Nebi Extension Installed.");
 });
 
-// Listen to popup and content script messages
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("Background received message:", message.action);
 
@@ -29,26 +28,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
-  if (
-    message.action === "start_calibration" ||
-    message.action === "start_voice_commands" ||
-    message.action === "update_sensitivity"
-  ) {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs.length > 0) {
-        chrome.tabs.sendMessage(tabs[0].id, { action: message.action, value: message.value }, (response) => {
-          if (chrome.runtime.lastError) {
-            console.warn("Nebi: Error sending to content script:", chrome.runtime.lastError.message);
-          }
-          sendResponse({ status: "success", from: "background" });
-        });
-      } else {
-        sendResponse({ status: "error", from: "background" });
-      }
-    });
-    return true;
-  }
-
   if (message.action === "switch_tab") {
     chrome.tabs.query({ currentWindow: true }, (tabs) => {
       chrome.tabs.query({ active: true, currentWindow: true }, (activeTabs) => {
@@ -56,9 +35,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const activeIndex = tabs.findIndex(tab => tab.id === activeTab.id);
 
         if (message.direction === "right" && activeIndex < tabs.length - 1) {
-          chrome.tabs.update(tabs[activeIndex + 1].id, { active: true });
+          chrome.tabs.update(tabs[activeIndex + 1].id, { active: true }, (tab) => {
+            chrome.tabs.reload(tab.id);  
+          });
         } else if (message.direction === "left" && activeIndex > 0) {
-          chrome.tabs.update(tabs[activeIndex - 1].id, { active: true });
+          chrome.tabs.update(tabs[activeIndex - 1].id, { active: true }, (tab) => {
+            chrome.tabs.reload(tab.id);   
+          });
         }
       });
     });
@@ -73,40 +56,45 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
     return true;
   }
+
+  if (message.action === "reload_tab") {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs.length > 0) {
+        chrome.tabs.reload(tabs[0].id); 
+      }
+    });
+    return true;
+  }
+
+  if (message.action === "start_calibration") {
+    console.log("[Background] Forwarding start_calibration to content script.");
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs.length > 0) {
+        chrome.tabs.sendMessage(tabs[0].id, { action: "start_calibration" });
+      }
+    });
+    return true;
+  }
 });
 
-// Auto-reinject after navigation (page reloads)
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete' && /^https?:/.test(tab.url)) {
     chrome.scripting.executeScript({
       target: { tabId: tabId },
-      files: ["webgazer.js", "contentScript.js"]
+      files: ["contentScript.js"]
     }, () => {
-      console.log("Nebi: Re-injected scripts after navigation.");
+      console.log("Nebi: Re-injected content script after reload.");
 
-      // Check if trackingEnabled in storage
       chrome.storage.local.get("trackingEnabled", (data) => {
         if (data.trackingEnabled) {
           chrome.tabs.sendMessage(tabId, { action: "start_tracking" }, (response) => {
             if (chrome.runtime.lastError) {
-              console.warn("Nebi: Could not auto-start tracking after navigation:", chrome.runtime.lastError.message);
+              console.warn("Nebi: Could not auto-start tracking after reload:", chrome.runtime.lastError.message);
             }
           });
         }
       });
     });
   }
-});
-
-// Auto-restart tracking when switching tabs
-chrome.tabs.onActivated.addListener((activeInfo) => {
-  chrome.storage.local.get("trackingEnabled", (data) => {
-    if (data.trackingEnabled) {
-      chrome.tabs.sendMessage(activeInfo.tabId, { action: "start_tracking" }, (response) => {
-        if (chrome.runtime.lastError) {
-          console.warn("Nebi: Could not start tracking on tab switch:", chrome.runtime.lastError.message);
-        }
-      });
-    }
-  });
 });
