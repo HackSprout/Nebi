@@ -1,8 +1,19 @@
 console.log("Nebi Content Script Loaded!");
 
-// ==============================
-// Mic + Voice Recognition Setup
-// ==============================
+if (!document.getElementById('gazeDot')) {
+  const gazeDot = document.createElement('div');
+  gazeDot.id = 'gazeDot';
+  gazeDot.style.position = 'absolute';
+  gazeDot.style.width = '15px';
+  gazeDot.style.height = '15px';
+  gazeDot.style.background = 'red';
+  gazeDot.style.borderRadius = '50%';
+  gazeDot.style.opacity = '0.7';
+  gazeDot.style.pointerEvents = 'none';
+  gazeDot.style.zIndex = '9999';
+  document.body.appendChild(gazeDot);
+}
+
 
 let recognition;
 let isListening = false;
@@ -51,9 +62,37 @@ function stopSpeechRecognition() {
   }
 }
 
-// ==============================
-// Background Message Listener
-// ==============================
+
+function startWebGazer() {
+  console.log("[WebGazer] Starting tracking...");
+  webgazer.showVideo(false).showPredictionPoints(true);
+  if (typeof webgazer !== 'undefined') {
+    webgazer.setRegression('ridge')   
+            .setGazeListener((data, timestamp) => {
+              if (data) {
+                const gazeDot = document.getElementById("gazeDot");
+                if (gazeDot) {
+                  gazeDot.style.left = data.x + "px";
+                  gazeDot.style.top = data.y + "px";
+                  gazeDot.style.display = 'block';
+                }
+              }
+            })
+            .begin();
+  } else {
+    console.error("[WebGazer] Not loaded!");
+  }
+}
+
+function stopWebGazer() {
+  console.log("[WebGazer] Stopping tracking...");
+  if (typeof webgazer !== 'undefined') {
+    webgazer.end();
+    const gazeDot = document.getElementById("gazeDot");
+    if (gazeDot) gazeDot.style.display = 'none';
+  }
+}
+
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("ContentScript received:", message.action);
@@ -65,9 +104,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.action === "start_tracking") {
     setupSpeechRecognition();
     startSpeechRecognition();
+    startWebGazer();
   } else if (message.action === "stop_tracking") {
     stopSpeechRecognition();
+    stopWebGazer();
+  } else if (message.action === "start_calibration") {
+    console.log("[WebGazer] Starting Calibration...");
+  
+    if (typeof webgazer !== 'undefined') {
+      webgazer.clearData(); // Optional: clear old data
+      webgazer.showVideo(false); // Hide webcam feed
+      webgazer.showPredictionPoints(true); // Show raw dots
+  
+      showCalibrationOverlay(); // 💥 <- ADD THIS TO SHOW THE 9 RED DOTS
+    }
   }
+  
 });
 
 
@@ -103,7 +155,10 @@ function handleVoiceCommand(command) {
     switchTab("left");     
   } else if (command.includes('close tab')) {
     closeCurrentTab();   
+  } else if (command.includes('calibration')) {
+    chrome.runtime.sendMessage({ action: "start_calibration" });
   }
+  
 }
 
 function switchTab(direction) {
@@ -115,11 +170,86 @@ function closeCurrentTab() {
 }
 
 
-
-
 window.addEventListener('load', () => {
   console.log("[ContentScript] Page loaded. Restarting Speech Recognition...");
 
   setupSpeechRecognition();
   startSpeechRecognition();
 });
+
+
+function showCalibrationOverlay() {
+  if (document.getElementById('calibrationOverlay')) {
+    console.log('Calibration overlay already exists.');
+    return;
+  }
+
+  const overlay = document.createElement('div');
+  overlay.id = 'calibrationOverlay';
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '100vw';
+  overlay.style.height = '100vh';
+  overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+  overlay.style.zIndex = '999999';
+  document.body.appendChild(overlay);
+
+  const positions = [
+    { top: '5%', left: '5%' }, { top: '5%', left: '50%' }, { top: '5%', right: '5%' },
+    { top: '50%', left: '5%' }, { top: '50%', left: '50%' }, { top: '50%', right: '5%' },
+    { bottom: '5%', left: '5%' }, { bottom: '5%', left: '50%' }, { bottom: '5%', right: '5%' }
+  ];
+
+  let currentDotIndex = 0;
+  let currentDot = null;
+
+  function showNextDot() {
+    if (currentDot) {
+      currentDot.remove(); // Remove old dot
+    }
+
+    if (currentDotIndex >= positions.length) {
+      finishCalibration();
+      return;
+    }
+
+    const pos = positions[currentDotIndex];
+    const dot = document.createElement('div');
+    dot.className = 'calibrationDot';
+    dot.style.position = 'absolute';
+    dot.style.width = '20px';
+    dot.style.height = '20px';
+    dot.style.backgroundColor = 'red';
+    dot.style.borderRadius = '50%';
+    dot.style.cursor = 'pointer';
+    dot.style.zIndex = '1000000';
+
+    for (const [key, value] of Object.entries(pos)) {
+      dot.style[key] = value;
+    }
+    dot.style.transform = 'translate(-50%, -50%)';
+
+    dot.addEventListener('click', (e) => {
+      const x = e.clientX;
+      const y = e.clientY;
+      console.log(`Calibration click recorded at: (${x}, ${y})`);
+      webgazer.recordScreenPosition(x, y, 'click');
+      currentDotIndex++;
+      showNextDot();
+    });
+
+    overlay.appendChild(dot);
+    currentDot = dot;
+  }
+
+  showNextDot();
+}
+
+function finishCalibration() {
+  const overlay = document.getElementById('calibrationOverlay');
+  if (overlay) {
+    overlay.remove();
+  }
+  console.log("%cCalibration complete!", "color: lightgreen; font-size: 16px");
+}
