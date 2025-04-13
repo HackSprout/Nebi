@@ -1,0 +1,60 @@
+/* About page styles */
+.about-page {
+    padding: 24px;
+}
+
+.about-header-nav {
+    display: flex;
+    align-items: center;
+    margin-bottom: 48px;
+    position: relative;
+}
+
+.header-text {
+    width: 100%;
+    text-align: center;
+}
+
+.header-text h1 {
+    font-size: 48px;
+    margin-bottom: 8px;
+}
+
+.header-text h2 {
+    font-size: 24px;
+    color: #8e8e93;
+    font-weight: normal;
+}
+
+.back-button {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    color: white;
+    border: none;
+    font-size: 24px;
+    padding: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.back-button:hover {
+    transform: translateY(-50%) translateX(-4px);
+}
+
+.about-content {
+    margin-top: 32px;
+}
+
+.about-content h3 {
+    font-size: 24px;
+    margin-bottom: 16px;
+}
+
+.about-description {
+    font-size: 16px;
+    line-height: 1.5;
+    color: #e0e0e0;
+}
