@@ -123,16 +123,23 @@ function stopSpeechRecognition() {
 
 // Handle Voice Commands
 function handleVoiceCommand(command) {
-  if (command.includes('click')) {
-    simulateClickAtGaze();
-  } else if (command.includes('scroll down')) {
-    window.scrollBy({ top: 400, behavior: 'smooth' });
-  } else if (command.includes('scroll up')) {
-    window.scrollBy({ top: -400, behavior: 'smooth' });
-  } else if (command.includes('stop')) {
-    stopTracking();
+    if (command.includes('click')) {
+      simulateClickAtGaze();
+    } else if (command.includes('scroll down')) {
+      window.scrollBy({ top: 400, behavior: 'smooth' });
+    } else if (command.includes('scroll up')) {
+      window.scrollBy({ top: -400, behavior: 'smooth' });
+    } else if (command.includes('stop')) {
+      stopTracking();
+    } else if (command.includes('switch tab right')) {
+      switchTab("right");
+    } else if (command.includes('switch tab left')) {
+      switchTab("left");
+    } else if (command.includes('close this tab')) {
+      closeCurrentTab();
+    }
   }
-}
+  
 
 // Simulate Click at Current Gaze
 function simulateClickAtGaze() {
@@ -210,3 +217,13 @@ function finishCalibration() {
   }
   console.log("%cCalibration complete!", "color: lightgreen; font-size: 16px");
 }
+
+
+function switchTab(direction) {
+    chrome.runtime.sendMessage({ action: "switch_tab", direction: direction });
+  }
+  
+  function closeCurrentTab() {
+    chrome.runtime.sendMessage({ action: "close_tab" });
+  }
+  

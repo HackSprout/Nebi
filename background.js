@@ -48,6 +48,32 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
     return true;
   }
+
+  if (message.action === "switch_tab") {
+    chrome.tabs.query({ currentWindow: true }, (tabs) => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (activeTabs) => {
+        const activeTab = activeTabs[0];
+        const activeIndex = tabs.findIndex(tab => tab.id === activeTab.id);
+  
+        if (message.direction === "right" && activeIndex < tabs.length - 1) {
+          chrome.tabs.update(tabs[activeIndex + 1].id, { active: true });
+        } else if (message.direction === "left" && activeIndex > 0) {
+          chrome.tabs.update(tabs[activeIndex - 1].id, { active: true });
+        }
+      });
+    });
+    return true;
+  }
+  
+  if (message.action === "close_tab") {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs.length > 0) {
+        chrome.tabs.remove(tabs[0].id);
+      }
+    });
+    return true;
+  }
+  
 });
 
 // Auto-reinject after navigation
