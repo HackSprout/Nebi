@@ -8,20 +8,33 @@ chrome.storage.local.get("trackingEnabled", (data) => {
 });
 
 // Eye Tracking Toggle
-document.getElementById("eyeTrackingToggle").addEventListener("change", (event) => {
-  const isTrackingEnabled = event.target.checked;
-  
-  chrome.runtime.sendMessage({ 
-    action: "toggle_tracking", 
-    enabled: isTrackingEnabled 
-  }, (response) => {
-    if (response && response.status === "success") {
-      console.log(`Tracking ${isTrackingEnabled ? "started" : "stopped"} successfully.`);
-      updateTrackingLabels(isTrackingEnabled);
-    } else {
-      console.error("Failed to toggle tracking.");
-    }
-  });
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle Eye Tracking Toggle
+    document.getElementById("eyeTrackingToggle").addEventListener("change", (event) => {
+        const isTrackingEnabled = event.target.checked;
+        
+        chrome.runtime.sendMessage({ 
+            action: "toggle_tracking", 
+            enabled: isTrackingEnabled 
+        }, (response) => {
+            if (response && response.status === "success") {
+                console.log(`Tracking ${isTrackingEnabled ? "started" : "stopped"} successfully.`);
+                updateTrackingLabels(isTrackingEnabled);
+            } else {
+                console.error("Failed to toggle tracking.");
+            }
+        });
+    });
+
+    // Handle About card click
+    document.querySelector('.about-card').addEventListener('click', () => {
+        window.location.href = 'about.html';
+    });
+
+    // Handle Commands card click
+    document.querySelector('.command-card').addEventListener('click', () => {
+        window.location.href = 'commands.html';
+    });
 });
 
 // Update Tracking Labels (Voice: ON/OFF, Gaze: ON/OFF)
