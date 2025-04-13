@@ -48,8 +48,20 @@ body {
 }
 
 header {
+    display: flex;
     text-align: center;
     margin-bottom: 10px;
+}
+
+.logo {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.header-text {
+    flex: 1;
+    margin-right: 3rem;
 }
 
 h1 {
@@ -63,9 +75,9 @@ h1 {
     font-size: 14px;
 }
 
-.grid {
+.layout {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(1, 1fr);
     gap: 12px;
 }
 
@@ -76,71 +88,91 @@ h1 {
     padding: 16px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 8px;
+    gap: 16px;
     transition: background-color 0.2s;
 }
+
+.tracking-header, .calibrate-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.tracking-title, .calibrate-title {
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.tracking-status {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 8px 0;
+}
+
+.status-item {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.status-label {
+    font-size: 14px;
+    color: #8e8e93;
+}
+
+.status-value {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.command-header, .about-header{
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    width: 100%;
+}
+
+.command-title, .about-title {
+    font-size: 22px;
+    font-weight: 500;
+    padding-left: 30px;
+}
+
+.command-white, .about-white {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+
 
 .card:hover {
     border-color: rgba(0, 247, 255, 0.5);
     box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
 }
 
-.icon {
-    font-size: 24px;
-    margin-bottom: 4px;
-}
-
-h2 {
-    font-size: 14px;
-    font-weight: 500;
-    text-align: center;
-}
-
 button {
-    background: #527da9;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 13px;
+    background: #5f5fff;
+    color: black;
+    border: 2px solid black;
+    padding: 8px 24px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
 }
 
 button:hover {
     background: #0071e3;
 }
 
-.settings-panel {
-    background: #2c2c2e;
-    border-radius: 12px;
-    padding: 16px;
-}
-
-h3 {
-    font-size: 16px;
-    margin-bottom: 12px;
-}
-
-.setting-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-    gap: 12px;
-}
-
-/* .setting-item label {
-    font-size: 14px;
-    color: #8e8e93;
-} */
-
 .switch {
     position: relative;
     display: inline-block;
-    width: 44px;
-    height: 24px;
+    width: 64px;
+    height: 30px;
 }
 
 .switch input {
@@ -158,14 +190,14 @@ h3 {
     bottom: 0;
     background-color: #3a3a3c;
     transition: .4s;
-    border-radius: 24px;
+    border-radius: 30px;
 }
 
 .slider:before {
     position: absolute;
     content: "";
-    height: 20px;
-    width: 20px;
+    height: 25px;
+    width: 25px;
     left: 2px;
     bottom: 2px;
     background-color: white;
@@ -178,5 +210,5 @@ input:checked + .slider {
 }
 
 input:checked + .slider:before {
-    transform: translateX(20px);
+    transform: translateX(35px);
 }
