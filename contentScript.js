@@ -32,7 +32,7 @@ async function startTracking() {
     })
     .begin();
 
-  webgazer.showVideo(false).showPredictionPoints(true);
+  webgazer.showVideo(false).showPredictionPoints(false);
 
   setupSpeechRecognition();
   startSpeechRecognition();
@@ -50,6 +50,12 @@ function stopTracking() {
 
   webgazer.pause();
   stopSpeechRecognition();
+
+  // Remove cursor when tracking stops
+  const cursor = document.getElementById('gazeCursor');
+  if (cursor) {
+    cursor.remove();
+  }
 
   isTracking = false;
 }
@@ -71,25 +77,30 @@ function smoothGazePrediction(prediction) {
 
 // Visual Cursor Creation
 function createCursor() {
-  if (!document.getElementById('gazeCursor')) {
-    const cursor = document.createElement('div');
-    cursor.id = 'gazeCursor';
-    cursor.style.position = 'absolute';
-    cursor.style.width = '10px';
-    cursor.style.height = '10px';
-    cursor.style.background = 'red';
-    cursor.style.borderRadius = '50%';
-    cursor.style.zIndex = '9999';
-    cursor.style.pointerEvents = 'none';
-    document.body.appendChild(cursor);
+  // Remove any existing cursors first
+  const existingCursor = document.getElementById('gazeCursor');
+  if (existingCursor) {
+    existingCursor.remove();
   }
+
+  // Create new cursor using rocket image
+  const cursor = document.createElement('img');
+  cursor.id = 'gazeCursor';
+  cursor.src = chrome.runtime.getURL('icons/rocket1.0.png');
+  cursor.style.position = 'absolute';
+  cursor.style.width = '32px';
+  cursor.style.height = '32px';
+  cursor.style.zIndex = '9999';
+  cursor.style.pointerEvents = 'none';
+  cursor.style.transform = 'translate(-50%, -50%)';
+  document.body.appendChild(cursor);
 }
 
 function updateCursor(x, y) {
   const cursor = document.getElementById('gazeCursor');
   if (cursor) {
-    cursor.style.left = `${x - 5}px`;
-    cursor.style.top = `${y - 5}px`;
+    cursor.style.left = `${x}px`;
+    cursor.style.top = `${y}px`;
   }
 }
 
