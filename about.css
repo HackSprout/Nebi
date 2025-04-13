@@ -1,56 +1,42 @@
-/* About page styles */
-.about-page {
-    padding: 24px;
+.card {
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
-.about-header-nav {
+.about-nebi-header{
+    display: grid;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.about-nebi-title {
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.commands-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 8px 0;
+}
+
+header {
     display: flex;
     align-items: center;
-    margin-bottom: 48px;
     position: relative;
 }
 
 .header-text {
-    width: 100%;
+    flex: 1;
     text-align: center;
-}
-
-.header-text h1 {
-    font-size: 48px;
-    margin-bottom: 8px;
-}
-
-.header-text h2 {
-    font-size: 24px;
-    color: #8e8e93;
-    font-weight: normal;
+    margin-left: 1rem;
 }
 
 .back-button {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    background: transparent;
-    color: white;
-    border: none;
-    font-size: 24px;
-    padding: 8px;
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
     cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.back-button:hover {
-    transform: translateY(-50%) translateX(-4px);
-}
-
-.about-content {
-    margin-top: 32px;
-}
-
-.about-content h3 {
-    font-size: 24px;
-    margin-bottom: 16px;
 }
 
 .about-description {

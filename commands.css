@@ -1,0 +1,53 @@
+header {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.header-text {
+    flex: 1;
+    text-align: center;
+    margin-left: 1rem;
+}
+
+.back-button {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    cursor: pointer;
+}
+
+.commands-title {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.commands-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 8px 0;
+}
+
+.commands-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.command-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 24px;
+    align-items: center;
+}
+
+.command {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.action {
+    color: #8e8e93;
+    font-size: 16px;
+}
